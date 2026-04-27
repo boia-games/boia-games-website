@@ -62,8 +62,11 @@ window.addEventListener('resize', sway);
 sway();
 
 // ---------- ascii rain in margins ----------
+// rain only exists on pages that include #rainL / #rainR (currently the homepage).
+// guard everything so the rest of the script still runs on pages without it.
 const chars = "+.*-~`'°·:;|/\\><";
 function makeRain(el, density) {
+    if (!el) return;
     const lines = 120;
     const cols = 4;
     let out = "";
@@ -84,17 +87,20 @@ makeRain(rainL, 0.28);
 makeRain(rainR, 0.22);
 
 function driftRain() {
+    if (!rainL && !rainR) return;
     const sy = window.scrollY;
-    rainL.style.transform = `translateY(${(-sy * 0.35).toFixed(1)}px)`;
-    rainR.style.transform = `translateY(${(-sy * 0.55).toFixed(1)}px)`;
+    if (rainL) rainL.style.transform = `translateY(${(-sy * 0.35).toFixed(1)}px)`;
+    if (rainR) rainR.style.transform = `translateY(${(-sy * 0.55).toFixed(1)}px)`;
 }
 window.addEventListener('scroll', driftRain, { passive: true });
 
 // re-shuffle the rain occasionally so it feels alive but not noisy
-setInterval(() => {
-    makeRain(rainL, 0.28);
-    makeRain(rainR, 0.22);
-}, 4200);
+if (rainL || rainR) {
+    setInterval(() => {
+        makeRain(rainL, 0.28);
+        makeRain(rainR, 0.22);
+    }, 4200);
+}
 
 // ---------- cursor trail ----------
 let lastTrail = 0;
