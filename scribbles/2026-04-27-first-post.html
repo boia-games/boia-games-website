@@ -7,29 +7,47 @@
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body>
-  <button class="theme-toggle" id="themeToggle"><span data-theme-label="light">light</span><span class="sep">·</span><span data-theme-label="dark">dark</span></button>
-  
+  <button class="theme-toggle" id="themeToggle" aria-label="toggle light or dark mode">
+    <span data-theme-label="light">light</span><span class="sep">·</span><span data-theme-label="dark">dark</span>
+  </button>
+
   <div class="wrap post">
     <p class="crumb"><a href="../">← boia.games</a></p>
-    
+
     <header class="post-header">
-        <p class="post-date">2026-04-27</p>
-        <h1>first attempt</h1>
+      <h1>scribbles</h1>
+      <p class="scribbles-blurb">click any line to expand. close to fold it back.</p>
     </header>
-    
-    <article>
-        <img src="../assets/godot-icon.svg" alt="hand-drawn godot icon" class="scribble-img">
-        <p>i started learning godot a few days ago through courses on gamedev.tv taught by the excellent Kaan Alpar</p>
-        <p>and i started reading <a href="https://schellgames.com/art-of-game-design">Game Design. A book of lenses, by Jesse Schell</a>  and it's pretty great so far. </p>
-        <p>found an online resource with the full deck of lenses contained in the book, <a href="https://deck.artofgamedesign.com/#/">here it is</a></p>
-    </article>
-    
-    <footer>
-        <span><a href="../scribbles/">← all scribbles</a></span>
-        <span><a href="../">home</a></span>
-    </footer>
+
+    <div class="scribble-list">
+
+      <details class="scribble-item">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-04-27</span>
+          <span class="s-sep">—</span>
+          <span class="s-title">first attempt</span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <img src="../assets/godot-icon.svg" alt="hand-drawn godot icon" class="scribble-img">
+          <p>i started learning godot a few days ago through courses on gamedev.tv taught by the excellent Kaan Alpar</p>
+          <p>and i started reading <a href="https://schellgames.com/art-of-game-design" target="_blank" rel="noopener">Game Design. A book of lenses, by Jesse Schell</a> and it's pretty great so far.</p>
+          <p>found an online resource with the full deck of lenses contained in the book, <a href="https://deck.artofgamedesign.com/#/" target="_blank" rel="noopener">here it is</a></p>
+          <p class="standalone-link"><a href="2026-04-27-first-post.html">open standalone ↗</a></p>
+        </div>
+      </details>
+
+      <!--
+      when you publish post #2:
+      copy the entire <details>...</details> block above, paste it ABOVE this comment,
+      change the date / title / body, and update the standalone-link href.
+      -->
+
+    </div>
   </div>
-  
+
   <script src="../assets/app.js"></script>
 </body>
 </html>

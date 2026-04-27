@@ -1,0 +1,23 @@
+# macOS finder metadata
+.DS_Store
+**/.DS_Store
+
+# windows thumbnail cache
+Thumbs.db
+
+# editor / IDE
+.vscode/
+.idea/
+.cursor/
+.antigravity/
+*.swp
+*.swo
+
+# node, in case you ever pull in tooling
+node_modules/
+
+# local-only template files (kept out of git and out of deploy)
+_templates/
+
+# log files
+*.log

@@ -1,0 +1,6 @@
+# netlify build config for boia.games
+# docs: https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  # static html site — no build step
+  publish = "."

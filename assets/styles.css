@@ -210,6 +210,132 @@
         border-bottom-color: var(--rule);
     }
 
+    /* scribbles index — accordion list */
+    .scribbles-blurb {
+        color: var(--faint);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .scribble-list {
+        margin-top: 32px;
+    }
+
+    .scribble-item {
+        margin: 0 0 18px 0;
+    }
+
+    /* hide native disclosure triangle, we draw our own */
+    .scribble-item summary {
+        list-style: none;
+        cursor: var(--cursor-link);
+        padding: 6px 0;
+        font-size: 14px;
+        color: var(--ink);
+        user-select: none;
+    }
+    .scribble-item summary::-webkit-details-marker { display: none; }
+    .scribble-item summary::marker { content: ""; }
+
+    .scribble-item summary:hover .s-title {
+        background: var(--ink);
+        color: var(--bg);
+    }
+
+    .scribble-item .chev {
+        display: inline-block;
+        width: 14px;
+        color: var(--accent);
+        transition: transform 0.2s ease;
+    }
+
+    .scribble-item[open] > summary .chev {
+        transform: rotate(90deg);
+    }
+
+    .scribble-item .s-date {
+        color: var(--faint);
+        margin-right: 6px;
+    }
+
+    .scribble-item .s-sep {
+        color: var(--rule);
+        margin-right: 6px;
+    }
+
+    .scribble-item .s-title {
+        color: var(--ink);
+        border-bottom: 1px dotted var(--rule);
+        padding: 0 2px;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    /* ASCII-cornered frame around expanded post body */
+    .ascii-frame {
+        position: relative;
+        border: 1px dashed var(--rule);
+        padding: 22px 22px 14px 22px;
+        margin: 14px 0 4px 24px;
+        background: var(--bg);
+    }
+
+    .ascii-frame .corner {
+        position: absolute;
+        color: var(--faint);
+        background: var(--bg);
+        line-height: 1;
+        padding: 0 3px;
+        font-size: 14px;
+        user-select: none;
+    }
+    .ascii-frame .corner.tl { top: -8px; left: -6px; }
+    .ascii-frame .corner.tr { top: -8px; right: -6px; }
+    .ascii-frame .corner.bl { bottom: -8px; left: -6px; }
+    .ascii-frame .corner.br { bottom: -8px; right: -6px; }
+
+    .ascii-frame p { margin: 0 0 12px 0; }
+    .ascii-frame p:last-child { margin-bottom: 0; }
+
+    .standalone-link {
+        margin-top: 14px;
+        font-size: 12px;
+        text-align: right;
+    }
+    .standalone-link a {
+        color: var(--faint);
+        border-bottom-color: var(--rule);
+    }
+
+    /* alternating tilt + soft entrance animation on open */
+    .scribble-item:nth-of-type(odd) .ascii-frame {
+        transform: rotate(-0.5deg);
+        transform-origin: 0% 0%;
+    }
+    .scribble-item:nth-of-type(even) .ascii-frame {
+        transform: rotate(0.4deg);
+        transform-origin: 100% 0%;
+    }
+
+    .scribble-item[open] .ascii-frame {
+        animation: ascii-in 0.45s ease both;
+    }
+
+    @keyframes ascii-in {
+        0%   { opacity: 0; transform: translateY(-6px) rotate(var(--tilt-from, -1.2deg)); }
+        100% { opacity: 1; }
+    }
+
+    .scribble-item:nth-of-type(odd)  .ascii-frame { --tilt-from: -1.2deg; }
+    .scribble-item:nth-of-type(even) .ascii-frame { --tilt-from: 1deg; }
+
+    /* respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+        .scribble-item[open] .ascii-frame { animation: none; }
+        .scribble-item .chev { transition: none; }
+        .scribble-item:nth-of-type(odd)  .ascii-frame,
+        .scribble-item:nth-of-type(even) .ascii-frame { transform: none; }
+    }
+
     /* blinking caret */
     .blink::after {
         content: "_";
