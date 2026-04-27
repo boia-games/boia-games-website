@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>boia games</title>
+  <meta name="description" content="boia games — francesco's small games, prototypes, half-things.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #2a2a2a;
+      --faint: #8a8a8a;
+      --rule: #dcdcdc;
+      --accent: #4a1f6b;
+      --grid: rgba(0, 0, 0, 0.04);
+      --vignette: rgba(0, 0, 0, 0.06);
+      --cursor-default: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><text x='1' y='14' font-family='monospace' font-size='16' fill='%232a2a2a'>+</text></svg>") 9 9, default;
+      --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path d='M3 3 L14 9 L3 15 Z' fill='%234a1f6b'/></svg>") 4 4, pointer;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0a0a0a;
+      --ink: #cfcfcf;
+      --faint: #6a6a6a;
+      --rule: #2a2a2a;
+      --accent: #c8a8e8;
+      --grid: rgba(255, 255, 255, 0.035);
+      --vignette: rgba(0, 0, 0, 0.55);
+      --cursor-default: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><text x='1' y='14' font-family='monospace' font-size='16' fill='%23cfcfcf'>+</text></svg>") 9 9, default;
+      --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path d='M3 3 L14 9 L3 15 Z' fill='%23c8a8e8'/></svg>") 4 4, pointer;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", "JetBrains Mono", "Menlo", "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      text-transform: lowercase;
+      cursor: var(--cursor-default);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* faint grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, var(--grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* subtle vignette */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, var(--vignette) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 80px 32px 200px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* logo */
+    header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+
+    header .logo-box {
+      display: inline-block;
+      will-change: transform;
+    }
+
+    header img {
+      max-width: 420px;
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      transition: filter 0.25s ease;
+    }
+
+    /* in dark mode, the dark-inked logo would disappear on black —
+     crush to black then partially invert to a soft light gray (~#d1d1d1) */
+    :root[data-theme="dark"] header img {
+      filter: brightness(0) invert(0.82);
+    }
+
+    header .tag {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      transform: rotate(-0.4deg);
+    }
+
+    /* sections — js applies a sway transform per scroll position */
+    section {
+      margin: 64px 0;
+      will-change: transform;
+    }
+
+    section h2 {
+      font-size: 13px;
+      font-weight: normal;
+      color: var(--faint);
+      margin: 0 0 18px 0;
+      letter-spacing: 0.14em;
+    }
+
+    section h2::before {
+      content: "~~ ";
+    }
+
+    section h2::after {
+      content: " ~~";
+    }
+
+    section p {
+      margin: 0 0 14px 0;
+    }
+
+    /* links */
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+      cursor: var(--cursor-link);
+    }
+
+    a:hover {
+      background: var(--ink);
+      color: var(--bg);
+      border-bottom-color: var(--ink);
+    }
+
+    /* lists */
+    ul.bare {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    ul.bare li {
+      padding: 4px 0;
+    }
+
+    ul.bare li::before {
+      content: "» ";
+      color: var(--faint);
+    }
+
+    /* blinking caret */
+    .blink::after {
+      content: "_";
+      animation: blink 1.1s steps(1) infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* footer */
+    footer {
+      margin-top: 140px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--rule);
+      color: var(--faint);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* margin rain */
+    .rain {
+      position: fixed;
+      top: -40px;
+      bottom: -40px;
+      width: 56px;
+      color: var(--rule);
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+      overflow: hidden;
+      white-space: pre;
+      user-select: none;
+      will-change: transform;
+    }
+
+    .rain.left {
+      left: 0;
+      padding-left: 14px;
+    }
+
+    .rain.right {
+      right: 0;
+      padding-right: 14px;
+      text-align: right;
+    }
+
+    /* cursor trail */
+    .trail {
+      position: fixed;
+      pointer-events: none;
+      color: var(--ink);
+      font-size: 13px;
+      z-index: 9999;
+      opacity: 0.55;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+      user-select: none;
+    }
+
+    /* skewed marquee-ish status strip near top, very subtle */
+    .strip {
+      position: fixed;
+      top: 14px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: var(--faint);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* theme toggle, top right */
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      z-index: 5;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--faint);
+      background: transparent;
+      border: none;
+      padding: 6px 8px;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      cursor: var(--cursor-link);
+      user-select: none;
+    }
+
+    .theme-toggle b {
+      color: var(--ink);
+      font-weight: normal;
+      border-bottom: 1px dotted var(--ink);
+    }
+
+    .theme-toggle .sep {
+      color: var(--rule);
+      margin: 0 4px;
+    }
+
+    @media (max-width: 720px) {
+
+      .rain,
+      .strip {
+        display: none;
+      }
+
+      .wrap {
+        padding: 36px 20px 100px;
+      }
+
+      header img {
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="strip">- being built -</div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="toggle light or dark mode">
+    <span data-theme-label="light">light</span><span class="sep">·</span><span data-theme-label="dark">dark</span>
+  </button>
+
+  <div class="rain left" id="rainL" aria-hidden="true"></div>
+  <div class="rain right" id="rainR" aria-hidden="true"></div>
+
+  <div class="wrap">
+
+    <header>
+      <div class="logo-box" id="logoBox">
+        <img src="assets/boia-logo.svg" alt="boia games logo">
+      </div>
+      <div class="tag">game studio of one with no games out yet but soon</div>
+    </header>
+
+    <section>
+      <h2>who</h2>
+      <p>i'm francesco. i make small games here, mostly as practice.</p>
+      <p>i'm a beginner. expect prototypes, abandoned ideas, half-finished things, and the occasional thing that limps
+        across some kind of finish line.</p>
+      <p>this site exists so the work has somewhere to live before it's ready, and also when it never becomes ready.</p>
+    </section>
+
+    <section>
+      <h2>things</h2>
+      <p>nothing released yet.</p>
+      <p>when there are things, they'll appear here, and elsewhere.</p>
+    </section>
+
+    <section>
+      <h2>scribbles</h2>
+      <p>notes, devlogs, broken ideas, post-mortems on things that never had a mortem.</p>
+      <p>not yet, though.<span class="blink"></span></p>
+    </section>
+
+    <section>
+      <h2>elsewhere</h2>
+      <ul class="bare">
+        <li>itch — <a href="https://boiagames.itch.io/" target="_blank" rel="noopener">boiagames.itch.io</a></li>
+        <li>mail — <a href="mailto:hello@boia.games">hello@boia.games</a></li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>boia games · 2026</span>
+      <span id="stamp">last touched —</span>
+    </footer>
+
+  </div>
+
+  <script>
+    // ---------- theme toggle ----------
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('themeToggle');
+    const lightLabel = toggleBtn.querySelector('[data-theme-label="light"]');
+    const darkLabel = toggleBtn.querySelector('[data-theme-label="dark"]');
+
+    function applyTheme(theme) {
+      root.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        darkLabel.innerHTML = '<b>dark</b>';
+        lightLabel.innerHTML = 'light';
+      } else {
+        lightLabel.innerHTML = '<b>light</b>';
+        darkLabel.innerHTML = 'dark';
+      }
+    }
+
+    // initial: saved preference, else system, else light
+    let saved = null;
+    try { saved = localStorage.getItem('boia-theme'); } catch (e) { }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+
+    toggleBtn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('boia-theme', next); } catch (e) { }
+    });
+
+    // follow system changes only if the user hasn't picked one yet
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      let s = null; try { s = localStorage.getItem('boia-theme'); } catch (err) { }
+      if (!s) applyTheme(e.matches ? 'dark' : 'light');
+    });
+
+    // ---------- sway sections on scroll ----------
+    const sections = document.querySelectorAll('section');
+    const logoBox = document.getElementById('logoBox');
+
+    function sway() {
+      const vh = window.innerHeight;
+      sections.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const off = (center - vh / 2) / vh; // -1..1 roughly
+        const dir = (i % 2 === 0) ? -1 : 1;
+        const x = dir * off * 10;
+        const rot = dir * off * 0.8;
+        s.style.transform = `translateX(${x.toFixed(2)}px) rotate(${rot.toFixed(3)}deg)`;
+      });
+
+      // logo gets a slow rotational wobble tied to scroll
+      const sy = window.scrollY;
+      if (logoBox) {
+        const a = -1.5 + Math.sin(sy / 110) * 1.6;
+        const tx = Math.sin(sy / 220) * 4;
+        logoBox.style.transform = `translateX(${tx.toFixed(2)}px) rotate(${a.toFixed(2)}deg)`;
+      }
+    }
+    window.addEventListener('scroll', sway, { passive: true });
+    window.addEventListener('resize', sway);
+    sway();
+
+    // ---------- ascii rain in margins ----------
+    const chars = "+.*-~`'°·:;|/\\><";
+    function makeRain(el, density) {
+      const lines = 120;
+      const cols = 4;
+      let out = "";
+      for (let i = 0; i < lines; i++) {
+        let line = "";
+        for (let j = 0; j < cols; j++) {
+          line += Math.random() < density
+            ? chars[Math.floor(Math.random() * chars.length)]
+            : " ";
+        }
+        out += line + "\n";
+      }
+      el.textContent = out;
+    }
+    const rainL = document.getElementById('rainL');
+    const rainR = document.getElementById('rainR');
+    makeRain(rainL, 0.28);
+    makeRain(rainR, 0.22);
+
+    function driftRain() {
+      const sy = window.scrollY;
+      rainL.style.transform = `translateY(${(-sy * 0.35).toFixed(1)}px)`;
+      rainR.style.transform = `translateY(${(-sy * 0.55).toFixed(1)}px)`;
+    }
+    window.addEventListener('scroll', driftRain, { passive: true });
+
+    // re-shuffle the rain occasionally so it feels alive but not noisy
+    setInterval(() => {
+      makeRain(rainL, 0.28);
+      makeRain(rainR, 0.22);
+    }, 4200);
+
+    // ---------- cursor trail ----------
+    let lastTrail = 0;
+    const trailChars = ['.', '·', '+', '*', '~'];
+    document.addEventListener('mousemove', (e) => {
+      const now = performance.now();
+      if (now - lastTrail < 55) return;
+      lastTrail = now;
+      const t = document.createElement('span');
+      t.className = 'trail';
+      t.textContent = trailChars[Math.floor(Math.random() * trailChars.length)];
+      t.style.left = (e.clientX + (Math.random() * 8 - 4)) + 'px';
+      t.style.top = (e.clientY + (Math.random() * 8 - 4)) + 'px';
+      document.body.appendChild(t);
+      requestAnimationFrame(() => {
+        t.style.opacity = '0';
+        t.style.transform = `translateY(${(8 + Math.random() * 10).toFixed(1)}px)`;
+      });
+      setTimeout(() => t.remove(), 750);
+    });
+
+    // ---------- last touched stamp ----------
+    const d = new Date(document.lastModified || Date.now());
+    const pad = n => String(n).padStart(2, '0');
+    const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const el = document.getElementById('stamp');
+    if (el) el.textContent = `last touched — ${stamp}`;
+
+    // ---------- tiny easter egg: type "boia" anywhere ----------
+    let buf = "";
+    document.addEventListener('keydown', (e) => {
+      if (e.key.length !== 1) return;
+      buf = (buf + e.key).slice(-4).toLowerCase();
+      if (buf === 'boia') {
+        const ghost = document.createElement('div');
+        ghost.textContent = 'x_x';
+        Object.assign(ghost.style, {
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%) rotate(-6deg)',
+          fontSize: '120px',
+          fontFamily: 'monospace',
+          color: 'var(--ink)',
+          zIndex: 10000,
+          pointerEvents: 'none',
+          opacity: '0',
+          transition: 'opacity 0.3s ease'
+        });
+        document.body.appendChild(ghost);
+        requestAnimationFrame(() => { ghost.style.opacity = '1'; });
+        setTimeout(() => { ghost.style.opacity = '0'; }, 1200);
+        setTimeout(() => ghost.remove(), 1700);
+        buf = "";
+      }
+    });
+
+    // respect reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.removeEventListener('scroll', sway);
+      window.removeEventListener('scroll', driftRain);
+      sections.forEach(s => s.style.transform = '');
+      if (logoBox) logoBox.style.transform = '';
+    }
+  </script>
+
+</body>
+
+</html>
