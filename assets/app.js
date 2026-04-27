@@ -159,3 +159,55 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     sections.forEach(s => s.style.transform = '');
     if (logoBox) logoBox.style.transform = '';
 }
+
+// ---------- drag-and-drop scribble frames ----------
+// each .ascii-frame can be grabbed and pushed around like a post-it note.
+// position is stored on the element via --dx / --dy custom properties so it
+// composes cleanly with the static tilt rotation defined in CSS.
+document.querySelectorAll('.ascii-frame').forEach(frame => {
+    let active = false;
+    let startPx = 0, startPy = 0;
+    let baseDx = 0, baseDy = 0;
+
+    frame.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;              // only left-click drags
+        if (e.target.closest('a')) return;       // let link clicks through
+
+        active = true;
+        startPx = e.clientX;
+        startPy = e.clientY;
+        baseDx = parseFloat(frame.style.getPropertyValue('--dx')) || 0;
+        baseDy = parseFloat(frame.style.getPropertyValue('--dy')) || 0;
+        frame.setPointerCapture(e.pointerId);
+        frame.classList.add('dragging');
+        e.preventDefault();
+    });
+
+    frame.addEventListener('pointermove', (e) => {
+        if (!active) return;
+        const dx = baseDx + (e.clientX - startPx);
+        const dy = baseDy + (e.clientY - startPy);
+        frame.style.setProperty('--dx', dx + 'px');
+        frame.style.setProperty('--dy', dy + 'px');
+    });
+
+    function endDrag(e) {
+        if (!active) return;
+        active = false;
+        frame.classList.remove('dragging');
+        try { frame.releasePointerCapture(e.pointerId); } catch (_) { }
+    }
+    frame.addEventListener('pointerup', endDrag);
+    frame.addEventListener('pointercancel', endDrag);
+
+    // when a post collapses, snap the frame back to its anchor spot
+    const details = frame.closest('details');
+    if (details) {
+        details.addEventListener('toggle', () => {
+            if (!details.open) {
+                frame.style.setProperty('--dx', '0px');
+                frame.style.setProperty('--dy', '0px');
+            }
+        });
+    }
+});
