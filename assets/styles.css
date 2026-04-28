@@ -202,8 +202,8 @@
         margin: 6px auto 14px auto;
     }
 
-    /* dark-mode: invert the dark-inked icon to a soft light gray, like the logo */
-    :root[data-theme="dark"] .scribble-img {
+    /* dark-mode: invert only svg doodle-like scribble images, not photo covers */
+    :root[data-theme="dark"] img.scribble-img[src$=".svg"] {
         filter: brightness(0) invert(0.82);
     }
 
@@ -230,6 +230,7 @@
 
     .scribble-item {
         margin: 0 0 18px 0;
+        position: relative;
         transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg));
         transition: box-shadow 0.2s ease;
     }
@@ -237,7 +238,7 @@
     /* hide native disclosure triangle, we draw our own */
     .scribble-item summary {
         list-style: none;
-        cursor: var(--cursor-link);
+        cursor: var(--cursor-move);
         padding: 6px 0;
         font-size: 14px;
         color: var(--ink);
@@ -327,6 +328,19 @@
     /* soft fade-in on open (only opacity, so it composes with the drag transform) */
     .scribble-item[open] .ascii-frame {
         animation: ascii-in 0.45s ease both;
+        position: absolute;
+        top: calc(100% - 4px);
+        left: 24px;
+        right: 0;
+        z-index: 7;
+    }
+
+    .scribble-item.dragging {
+        z-index: 8;
+    }
+
+    .scribble-item.no-toggle summary {
+        cursor: var(--cursor-move);
     }
 
     @keyframes ascii-in {
@@ -450,6 +464,124 @@
     .theme-toggle .sep {
         color: var(--rule);
         margin: 0 4px;
+    }
+
+    /* scribbles draw overlay */
+    .draw-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+    }
+
+    .draw-toolbar {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 14px;
+        z-index: 21;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        max-width: min(90vw, 420px);
+        background: var(--bg);
+        border: 1px dashed var(--rule);
+        padding: 8px;
+    }
+
+    .draw-toolbar button {
+        font-family: inherit;
+        font-size: 12px;
+        color: var(--ink);
+        background: transparent;
+        border: 1px solid var(--rule);
+        padding: 4px 7px;
+        cursor: var(--cursor-link);
+        text-transform: lowercase;
+    }
+
+    .draw-toolbar .tool-icon {
+        min-width: 30px;
+        font-size: 16px;
+        line-height: 1;
+        padding: 4px 6px;
+    }
+
+    .thickness-segment {
+        display: inline-flex;
+        border: 1px solid var(--rule);
+    }
+
+    .dot-btn {
+        min-width: 24px;
+        padding: 2px 6px;
+        font-size: 12px;
+        line-height: 1;
+        border: none !important;
+        border-right: 1px solid var(--rule) !important;
+    }
+
+    .dot-btn:last-child {
+        border-right: none !important;
+    }
+
+    #drawThin.dot-btn { font-size: 10px; }
+    #drawMid.dot-btn { font-size: 14px; }
+    #drawThick.dot-btn { font-size: 18px; }
+
+    .dot-btn[aria-pressed="true"] {
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+
+    .color-picks {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .draw-toolbar .color-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        padding: 0 !important;
+        border: 1px solid var(--rule) !important;
+    }
+
+    .draw-toolbar .tone-dot {
+        background: #161616 !important;
+    }
+
+    :root[data-theme="dark"] .draw-toolbar .tone-dot {
+        background: #f4f4f4 !important;
+    }
+
+    .draw-toolbar .red-dot {
+        background: #c31432 !important;
+    }
+
+    .color-dot[aria-pressed="true"] {
+        outline: 1px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .draw-toolbar button[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .draw-saved-status {
+        min-width: 110px;
+        text-align: right;
+        font-size: 11px;
+        color: var(--faint);
+        opacity: 0;
+        transition: opacity 0.18s ease;
+    }
+
+    .draw-saved-status.show {
+        opacity: 1;
     }
 
     @media (max-width: 720px) {

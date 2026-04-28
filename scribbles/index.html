@@ -6,6 +6,14 @@
   <title>scribbles</title>
   <link rel="stylesheet" href="../assets/styles.css">
   <style>
+    .featured-book {
+      width: min(220px, 100%);
+      max-width: none;
+      height: auto;
+      margin: 10px auto 16px;
+      display: block;
+    }
+
     .book-grid-fixed {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -37,7 +45,7 @@
     </header>
 
     <div class="scribble-list">
-      <details class="scribble-item">
+      <details class="scribble-item" data-post-id="2026-04-27-godot-lenses">
         <summary>
           <span class="chev">›</span>
           <span class="s-date">2026-04-27</span>
@@ -54,7 +62,7 @@
         </div>
       </details>
 
-      <details class="scribble-item">
+      <details class="scribble-item" data-post-id="2026-04-28-buncha-books">
         <summary>
           <span class="chev">›</span>
           <span class="s-date">2026-04-28</span>
@@ -64,8 +72,8 @@
         <div class="ascii-frame">
           <span class="corner tl">+</span><span class="corner tr">+</span>
           <span class="corner bl">+</span><span class="corner br">+</span>
-          <p>here are a few books about game design that i've been recommended other than the one i already started, which is:</p>
-          <img src="https://m.media-amazon.com/images/I/71k2myR37GL._SL1500_.jpg" alt="Game Design. A book of lenses by Jesse Schell" class="scribble-img">
+          <p>here are a few books about game design that i've been recommended other than <a href="./2026-04-27-first-post.html">the one i already started</a>, which is:</p>
+          <img src="https://m.media-amazon.com/images/I/71k2myR37GL._SL1500_.jpg" alt="Game Design. A book of lenses by Jesse Schell" class="scribble-img featured-book">
           <p>here they are:</p>
           <div class="book-grid-fixed">
             <img src="https://m.media-amazon.com/images/I/A11vGLbYKcL._SY385_.jpg" alt="A theory of fun by Roger Nelson" class="scribble-img book-cover">
@@ -78,6 +86,23 @@
         </div>
       </details>
     </div>
+  </div>
+
+  <canvas id="drawCanvas" class="draw-canvas" aria-hidden="true"></canvas>
+  <div id="drawToolbar" class="draw-toolbar" role="toolbar" aria-label="draw tools">
+    <button id="drawPen" class="tool-icon" type="button" aria-pressed="false" aria-label="toggle pencil">✎</button>
+    <button id="drawEraser" class="tool-icon" type="button" aria-pressed="false" aria-label="toggle eraser">⌫</button>
+    <div class="thickness-segment" role="group" aria-label="stroke thickness">
+      <button id="drawThin" class="dot-btn" type="button" aria-pressed="false" aria-label="thin">•</button>
+      <button id="drawMid" class="dot-btn" type="button" aria-pressed="true" aria-label="medium">•</button>
+      <button id="drawThick" class="dot-btn" type="button" aria-pressed="false" aria-label="thick">•</button>
+    </div>
+    <div class="color-picks" role="group" aria-label="ink color">
+      <button id="drawBlack" class="color-dot tone-dot" type="button" aria-pressed="true" aria-label="black or white ink"></button>
+      <button id="drawRed" class="color-dot red-dot" type="button" aria-pressed="false" aria-label="red ink"></button>
+    </div>
+    <button id="drawResetClear" type="button" aria-pressed="false">clear</button>
+    <span id="drawSavedStatus" class="draw-saved-status" aria-live="polite"></span>
   </div>
 
   <script src="../assets/app.js"></script>

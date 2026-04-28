@@ -167,52 +167,353 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 }
 
 // ---------- drag-and-drop scribble posts ----------
-// drag is started from the expanded .ascii-frame, but translation is applied to
-// the parent <details>. this keeps summary date+title and body attached.
-document.querySelectorAll('.scribble-item').forEach(item => {
-    const frame = item.querySelector('.ascii-frame');
-    if (!frame) return;
+// each <details.scribble-item> can be dragged both collapsed and expanded.
+// summary click still toggles; only true pointer movement starts a drag.
+const scribbleItems = Array.from(document.querySelectorAll('.scribble-item'));
+const scribblePosKey = `boia-scribble-pos:${window.location.pathname}`;
+let scribblePosStore = {};
+try {
+    const raw = localStorage.getItem(scribblePosKey);
+    scribblePosStore = raw ? JSON.parse(raw) : {};
+} catch (_) {
+    scribblePosStore = {};
+}
+
+function saveScribblePositions() {
+    try { localStorage.setItem(scribblePosKey, JSON.stringify(scribblePosStore)); } catch (_) { }
+}
+
+scribbleItems.forEach((item, index) => {
+    const itemId = item.dataset.postId || item.querySelector('.s-date')?.textContent?.trim() || `item-${index}`;
+    item.dataset.postId = itemId;
+    const savedPos = scribblePosStore[itemId];
+    if (savedPos) {
+        item.style.setProperty('--dx', `${savedPos.dx || 0}px`);
+        item.style.setProperty('--dy', `${savedPos.dy || 0}px`);
+    }
 
     let active = false;
+    let moved = false;
     let startPx = 0, startPy = 0;
     let baseDx = 0, baseDy = 0;
+    let pointerId = null;
+    let dragStartTarget = null;
 
-    frame.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;              // only left-click drags
-        if (e.target.closest('a')) return;       // let link clicks through
+    item.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        if (e.target.closest('a')) return;
+        if (!e.target.closest('summary') && !e.target.closest('.ascii-frame')) return;
 
         active = true;
+        moved = false;
+        pointerId = e.pointerId;
+        dragStartTarget = e.target.closest('summary') || e.target.closest('.ascii-frame') || item;
         startPx = e.clientX;
         startPy = e.clientY;
         baseDx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
         baseDy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
-        frame.setPointerCapture(e.pointerId);
-        item.classList.add('dragging');
+        item.classList.add('no-toggle');
+        try { dragStartTarget.setPointerCapture(pointerId); } catch (_) { }
+    });
+
+    item.addEventListener('pointermove', (e) => {
+        if (!active || e.pointerId !== pointerId) return;
+        const moveX = e.clientX - startPx;
+        const moveY = e.clientY - startPy;
+
+        if (!moved && (Math.abs(moveX) > 4 || Math.abs(moveY) > 4)) {
+            moved = true;
+            item.classList.add('dragging');
+        }
+        if (!moved) return;
+
+        item.style.setProperty('--dx', (baseDx + moveX) + 'px');
+        item.style.setProperty('--dy', (baseDy + moveY) + 'px');
         e.preventDefault();
     });
 
-    frame.addEventListener('pointermove', (e) => {
-        if (!active) return;
-        const dx = baseDx + (e.clientX - startPx);
-        const dy = baseDy + (e.clientY - startPy);
-        item.style.setProperty('--dx', dx + 'px');
-        item.style.setProperty('--dy', dy + 'px');
-    });
-
     function endDrag(e) {
-        if (!active) return;
+        if (!active || e.pointerId !== pointerId) return;
+        if (moved) {
+            // prevent this pointerup from also triggering summary toggle click
+            item.dataset.suppressSummaryClick = '1';
+            setTimeout(() => { delete item.dataset.suppressSummaryClick; }, 0);
+            const dx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
+            const dy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
+            scribblePosStore[itemId] = { dx, dy };
+            saveScribblePositions();
+            const posStatus = document.getElementById('drawSavedStatus');
+            if (posStatus) {
+                posStatus.textContent = 'position saved';
+                posStatus.classList.add('show');
+                setTimeout(() => posStatus.classList.remove('show'), 1000);
+            }
+        }
         active = false;
+        moved = false;
         item.classList.remove('dragging');
-        try { frame.releasePointerCapture(e.pointerId); } catch (_) { }
+        item.classList.remove('no-toggle');
+        try { dragStartTarget.releasePointerCapture(pointerId); } catch (_) { }
+        pointerId = null;
+        dragStartTarget = null;
     }
-    frame.addEventListener('pointerup', endDrag);
-    frame.addEventListener('pointercancel', endDrag);
 
-    // when a post collapses, snap the frame back to its anchor spot
-    item.addEventListener('toggle', () => {
-        if (!item.open) {
+    item.addEventListener('pointerup', endDrag);
+    item.addEventListener('pointercancel', endDrag);
+
+    const summary = item.querySelector('summary');
+    if (summary) {
+        summary.addEventListener('click', (e) => {
+            if (item.dataset.suppressSummaryClick === '1') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
+});
+
+// ---------- scribbles draw overlay ----------
+const drawCanvas = document.getElementById('drawCanvas');
+const drawToolbar = document.getElementById('drawToolbar');
+if (drawCanvas && drawToolbar) {
+    const drawKey = `boia-scribble-drawing:${window.location.pathname}`;
+    const ctx = drawCanvas.getContext('2d');
+    const qs = (id) => document.getElementById(id);
+    const savedStatus = qs('drawSavedStatus');
+    let savedTimer = null;
+
+    let mode = 'off';
+    let color = 'black';
+    let size = 10;
+    let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let currentStroke = null;
+    let strokes = [];
+
+    function flashSaved(text = 'saved') {
+        if (!savedStatus) return;
+        savedStatus.textContent = text;
+        savedStatus.classList.add('show');
+        if (savedTimer) clearTimeout(savedTimer);
+        savedTimer = setTimeout(() => {
+            savedStatus.classList.remove('show');
+        }, 1000);
+    }
+
+    function colorValue(c) {
+        if (c === 'red') return '#c31432';
+        return root.getAttribute('data-theme') === 'dark' ? '#f4f4f4' : '#161616';
+    }
+
+    function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        drawCanvas.width = Math.floor(window.innerWidth * ratio);
+        drawCanvas.height = Math.floor(window.innerHeight * ratio);
+        drawCanvas.style.width = `${window.innerWidth}px`;
+        drawCanvas.style.height = `${window.innerHeight}px`;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        renderAll();
+    }
+
+    function saveDrawing() {
+        try {
+            localStorage.setItem(drawKey, JSON.stringify(strokes));
+            flashSaved('scribble saved');
+        } catch (_) { }
+    }
+
+    function restoreDrawing() {
+        let raw = null;
+        try { raw = localStorage.getItem(drawKey); } catch (_) { raw = null; }
+        if (!raw) return;
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) strokes = parsed;
+        } catch (_) {
+            strokes = [];
+        }
+        renderAll();
+    }
+
+    function setTooling() {
+        drawCanvas.style.pointerEvents = mode === 'off' ? 'none' : 'auto';
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = size;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = colorValue(color);
+        ctx.globalAlpha = 0.92;
+
+        const states = [
+            ['drawPen', mode === 'pen'],
+            ['drawEraser', mode === 'eraser'],
+            ['drawBlack', color === 'black'],
+            ['drawRed', color === 'red'],
+            ['drawThin', size === 6],
+            ['drawMid', size === 10],
+            ['drawThick', size === 16]
+        ];
+        states.forEach(([id, on]) => {
+            const elBtn = qs(id);
+            if (elBtn) elBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+
+    function drawStroke(stroke) {
+        if (!stroke || !stroke.points || stroke.points.length < 2) return;
+        const points = stroke.points;
+        const roughness = Math.max(1.1, stroke.size * 0.08);
+        const ink = colorValue(stroke.color);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 0.92;
+        ctx.lineWidth = stroke.size;
+        ctx.strokeStyle = ink;
+        for (let pass = 0; pass < 2; pass++) {
+            const ox = (pass === 0 ? -0.5 : 0.5) * roughness;
+            const oy = (pass === 0 ? 0.3 : -0.3) * roughness;
+            ctx.beginPath();
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                const wobbleX = Math.sin(i * 0.65 + pass) * roughness * 0.15;
+                const wobbleY = Math.cos(i * 0.5 + pass) * roughness * 0.15;
+                const x = p.x + ox + wobbleX;
+                const y = p.y + oy + wobbleY;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+    }
+
+    function renderAll() {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        strokes.forEach(drawStroke);
+    }
+
+    function pointToSegmentDistance(px, py, ax, ay, bx, by) {
+        const abx = bx - ax;
+        const aby = by - ay;
+        const apx = px - ax;
+        const apy = py - ay;
+        const abLenSq = abx * abx + aby * aby || 1;
+        let t = (apx * abx + apy * aby) / abLenSq;
+        t = Math.max(0, Math.min(1, t));
+        const cx = ax + abx * t;
+        const cy = ay + aby * t;
+        const dx = px - cx;
+        const dy = py - cy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function strokeTouched(stroke, x, y, threshold) {
+        if (!stroke.points || stroke.points.length < 2) return false;
+        for (let i = 1; i < stroke.points.length; i++) {
+            const a = stroke.points[i - 1];
+            const b = stroke.points[i];
+            if (pointToSegmentDistance(x, y, a.x, a.y, b.x, b.y) <= threshold) return true;
+        }
+        return false;
+    }
+
+    function eraseAt(x, y) {
+        const before = strokes.length;
+        strokes = strokes.filter((stroke) => {
+            const threshold = Math.max(8, stroke.size * 0.9, size * 0.9);
+            return !strokeTouched(stroke, x, y, threshold);
+        });
+        if (strokes.length !== before) {
+            renderAll();
+            saveDrawing();
+        }
+    }
+
+    function beginDraw(e) {
+        if (mode === 'off') return;
+        if (e.button !== 0) return;
+        drawing = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        if (mode === 'pen') {
+            currentStroke = { color, size, points: [{ x: lastX, y: lastY }] };
+            strokes.push(currentStroke);
+        } else if (mode === 'eraser') {
+            eraseAt(lastX, lastY);
+        }
+        drawCanvas.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    }
+
+    function moveDraw(e) {
+        if (!drawing) return;
+        const x = e.clientX;
+        const y = e.clientY;
+        if (mode === 'eraser') {
+            eraseAt(x, y);
+        } else {
+            if (currentStroke) {
+                currentStroke.points.push({ x, y });
+                renderAll();
+            }
+        }
+        lastX = x;
+        lastY = y;
+        e.preventDefault();
+    }
+
+    function endDraw(e) {
+        if (!drawing) return;
+        drawing = false;
+        try { drawCanvas.releasePointerCapture(e.pointerId); } catch (_) { }
+        if (mode === 'pen' && currentStroke && currentStroke.points.length < 2) {
+            strokes.pop();
+        }
+        currentStroke = null;
+        saveDrawing();
+    }
+
+    resizeCanvas();
+    restoreDrawing();
+    setTooling();
+    window.addEventListener('resize', resizeCanvas);
+
+    drawCanvas.addEventListener('pointerdown', beginDraw);
+    drawCanvas.addEventListener('pointermove', moveDraw);
+    drawCanvas.addEventListener('pointerup', endDraw);
+    drawCanvas.addEventListener('pointercancel', endDraw);
+
+    qs('drawPen')?.addEventListener('click', () => {
+        mode = mode === 'pen' ? 'off' : 'pen';
+        setTooling();
+    });
+    qs('drawEraser')?.addEventListener('click', () => {
+        mode = mode === 'eraser' ? 'off' : 'eraser';
+        setTooling();
+    });
+    qs('drawBlack')?.addEventListener('click', () => { color = 'black'; mode = 'pen'; setTooling(); });
+    qs('drawRed')?.addEventListener('click', () => { color = 'red'; mode = 'pen'; setTooling(); });
+    qs('drawThin')?.addEventListener('click', () => { size = 6; setTooling(); });
+    qs('drawMid')?.addEventListener('click', () => { size = 10; setTooling(); });
+    qs('drawThick')?.addEventListener('click', () => { size = 16; setTooling(); });
+    qs('drawResetClear')?.addEventListener('click', () => {
+        // clear drawing layer
+        strokes = [];
+        renderAll();
+        try { localStorage.removeItem(drawKey); } catch (_) { }
+
+        // reset draggable post offsets
+        scribbleItems.forEach((item) => {
             item.style.setProperty('--dx', '0px');
             item.style.setProperty('--dy', '0px');
-        }
+        });
+        scribblePosStore = {};
+        saveScribblePositions();
+        flashSaved('reset done');
     });
-});
+
+    // keep black pen visible in dark mode too
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        renderAll();
+    });
+}
