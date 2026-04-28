@@ -166,11 +166,13 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     if (logoBox) logoBox.style.transform = '';
 }
 
-// ---------- drag-and-drop scribble frames ----------
-// each .ascii-frame can be grabbed and pushed around like a post-it note.
-// position is stored on the element via --dx / --dy custom properties so it
-// composes cleanly with the static tilt rotation defined in CSS.
-document.querySelectorAll('.ascii-frame').forEach(frame => {
+// ---------- drag-and-drop scribble posts ----------
+// drag is started from the expanded .ascii-frame, but translation is applied to
+// the parent <details>. this keeps summary date+title and body attached.
+document.querySelectorAll('.scribble-item').forEach(item => {
+    const frame = item.querySelector('.ascii-frame');
+    if (!frame) return;
+
     let active = false;
     let startPx = 0, startPy = 0;
     let baseDx = 0, baseDy = 0;
@@ -182,10 +184,10 @@ document.querySelectorAll('.ascii-frame').forEach(frame => {
         active = true;
         startPx = e.clientX;
         startPy = e.clientY;
-        baseDx = parseFloat(frame.style.getPropertyValue('--dx')) || 0;
-        baseDy = parseFloat(frame.style.getPropertyValue('--dy')) || 0;
+        baseDx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
+        baseDy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
         frame.setPointerCapture(e.pointerId);
-        frame.classList.add('dragging');
+        item.classList.add('dragging');
         e.preventDefault();
     });
 
@@ -193,27 +195,24 @@ document.querySelectorAll('.ascii-frame').forEach(frame => {
         if (!active) return;
         const dx = baseDx + (e.clientX - startPx);
         const dy = baseDy + (e.clientY - startPy);
-        frame.style.setProperty('--dx', dx + 'px');
-        frame.style.setProperty('--dy', dy + 'px');
+        item.style.setProperty('--dx', dx + 'px');
+        item.style.setProperty('--dy', dy + 'px');
     });
 
     function endDrag(e) {
         if (!active) return;
         active = false;
-        frame.classList.remove('dragging');
+        item.classList.remove('dragging');
         try { frame.releasePointerCapture(e.pointerId); } catch (_) { }
     }
     frame.addEventListener('pointerup', endDrag);
     frame.addEventListener('pointercancel', endDrag);
 
     // when a post collapses, snap the frame back to its anchor spot
-    const details = frame.closest('details');
-    if (details) {
-        details.addEventListener('toggle', () => {
-            if (!details.open) {
-                frame.style.setProperty('--dx', '0px');
-                frame.style.setProperty('--dy', '0px');
-            }
-        });
-    }
+    item.addEventListener('toggle', () => {
+        if (!item.open) {
+            item.style.setProperty('--dx', '0px');
+            item.style.setProperty('--dy', '0px');
+        }
+    });
 });

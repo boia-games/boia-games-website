@@ -230,6 +230,8 @@
 
     .scribble-item {
         margin: 0 0 18px 0;
+        transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg));
+        transition: box-shadow 0.2s ease;
     }
 
     /* hide native disclosure triangle, we draw our own */
@@ -287,12 +289,10 @@
         cursor: var(--cursor-move);
         user-select: none;            /* drag conflicts with text selection */
         touch-action: none;           /* let pointer events drive on touch */
-        transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg));
-        transition: box-shadow 0.2s ease;
     }
 
     /* lifted-paper feedback while being dragged */
-    .ascii-frame.dragging {
+    .scribble-item.dragging .ascii-frame {
         box-shadow: 4px 6px 0 var(--rule);
         z-index: 5;
     }
@@ -321,8 +321,8 @@
     .ascii-frame p:last-child { margin-bottom: 0; }
 
     /* alternating static tilt direction per post — JS adds dx/dy on top */
-    .scribble-item:nth-of-type(odd)  .ascii-frame { --rot: -0.5deg; transform-origin: 0%   0%; }
-    .scribble-item:nth-of-type(even) .ascii-frame { --rot:  0.4deg; transform-origin: 100% 0%; }
+    .scribble-item:nth-of-type(odd)  { --rot: -0.5deg; transform-origin: 0%   0%; }
+    .scribble-item:nth-of-type(even) { --rot:  0.4deg; transform-origin: 100% 0%; }
 
     /* soft fade-in on open (only opacity, so it composes with the drag transform) */
     .scribble-item[open] .ascii-frame {
@@ -338,8 +338,8 @@
     @media (prefers-reduced-motion: reduce) {
         .scribble-item[open] .ascii-frame { animation: none; }
         .scribble-item .chev { transition: none; }
-        .scribble-item:nth-of-type(odd)  .ascii-frame,
-        .scribble-item:nth-of-type(even) .ascii-frame { --rot: 0deg; }
+        .scribble-item:nth-of-type(odd),
+        .scribble-item:nth-of-type(even) { --rot: 0deg; }
     }
 
     /* blinking caret */
