@@ -5,19 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>scribbles</title>
   <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .book-grid-fixed {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 10px 0 4px;
+    }
+
+    .book-grid-fixed .book-cover {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      margin: 0;
+      max-width: none;
+      display: block;
+    }
+  </style>
 </head>
 <body>
+  <button class="theme-toggle" id="themeToggle" aria-label="toggle light or dark mode">
+    <span data-theme-label="light">light</span><span class="sep">·</span><span data-theme-label="dark">dark</span>
+  </button>
+
   <div class="wrap post">
     <p class="crumb"><a href="../">← boia.games</a></p>
 
     <header class="post-header">
       <h1>scribbles</h1>
+      <p class="scribbles-blurb">click any line to expand. close to fold it back.</p>
     </header>
 
-    <ul>
-      <li><a href="./2026-04-27-first-post.html">2026-04-27 - godot & lenses</a></li>
-      <li><a href="./2026-04-28-books-about-game-design.html">2026-04-28 - buncha books</a></li>
-    </ul>
+    <div class="scribble-list">
+      <details class="scribble-item">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-04-27</span>
+          <span class="s-sep">—</span>
+          <span class="s-title">godot & lenses</span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <p>i started learning godot a few days ago through courses on gamedev.tv taught by the excellent Kaan Alpar</p>
+          <img src="../assets/godot-icon.svg" alt="hand-drawn godot icon" class="scribble-img">
+          <p>and i started reading <a href="https://schellgames.com/art-of-game-design" target="_blank" rel="noopener">Game Design. A book of lenses, by Jesse Schell</a> and it's pretty great so far.</p>
+          <p>found an online resource with the full deck of lenses contained in the book, <a href="https://deck.artofgamedesign.com/#/" target="_blank" rel="noopener">here it is</a></p>
+        </div>
+      </details>
+
+      <details class="scribble-item">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-04-28</span>
+          <span class="s-sep">—</span>
+          <span class="s-title">buncha books</span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <p>here are a few books about game design that i've been recommended other than the one i already started, which is:</p>
+          <img src="https://m.media-amazon.com/images/I/71k2myR37GL._SL1500_.jpg" alt="Game Design. A book of lenses by Jesse Schell" class="scribble-img">
+          <p>here they are:</p>
+          <div class="book-grid-fixed">
+            <img src="https://m.media-amazon.com/images/I/A11vGLbYKcL._SY385_.jpg" alt="A theory of fun by Roger Nelson" class="scribble-img book-cover">
+            <img src="https://m.media-amazon.com/images/I/81oXZw5+PxL._SL1500_.jpg" alt="Designing Games by Tynan Sylvester" class="scribble-img book-cover">
+            <img src="https://m.media-amazon.com/images/I/719xnikuQ2L._SL1500_.jpg" alt="Game Design Workshop by Tracy Fullerton" class="scribble-img book-cover">
+            <img src="https://m.media-amazon.com/images/I/61AyJMMVgjL._SL1500_.jpg" alt="Rules of Play by Katie Salen and Eric Zimmerman" class="scribble-img book-cover">
+            <img src="https://m.media-amazon.com/images/I/81pPMuVw6zL._SL1500_.jpg" alt="The Game Narrative Toolbox" class="scribble-img book-cover">
+            <img src="https://prodimage.images-bn.com/pimages/9781498717717_p0_v2_s600x595.jpg" alt="Game Feel by Steve Swink" class="scribble-img book-cover">
+          </div>
+        </div>
+      </details>
+    </div>
   </div>
+
+  <script src="../assets/app.js"></script>
 </body>
 </html>
