@@ -196,23 +196,26 @@ scribbleItems.forEach((item, index) => {
     let moved = false;
     let startPx = 0, startPy = 0;
     let baseDx = 0, baseDy = 0;
+    let pointerType = 'mouse';
     let pointerId = null;
     let dragStartTarget = null;
 
     item.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         if (e.target.closest('a')) return;
         if (!e.target.closest('summary') && !e.target.closest('.ascii-frame')) return;
 
         active = true;
         moved = false;
         pointerId = e.pointerId;
+        pointerType = e.pointerType || 'mouse';
         dragStartTarget = e.target.closest('summary') || e.target.closest('.ascii-frame') || item;
         startPx = e.clientX;
         startPy = e.clientY;
         baseDx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
         baseDy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
         item.classList.add('no-toggle');
+        item.style.touchAction = 'none';
         try { dragStartTarget.setPointerCapture(pointerId); } catch (_) { }
     });
 
@@ -221,7 +224,8 @@ scribbleItems.forEach((item, index) => {
         const moveX = e.clientX - startPx;
         const moveY = e.clientY - startPy;
 
-        if (!moved && (Math.abs(moveX) > 4 || Math.abs(moveY) > 4)) {
+        const threshold = (pointerType === 'touch') ? 10 : (pointerType === 'pen' ? 7 : 4);
+        if (!moved && (Math.abs(moveX) > threshold || Math.abs(moveY) > threshold)) {
             moved = true;
             item.classList.add('dragging');
         }
@@ -253,6 +257,7 @@ scribbleItems.forEach((item, index) => {
         moved = false;
         item.classList.remove('dragging');
         item.classList.remove('no-toggle');
+        item.style.touchAction = '';
         try { dragStartTarget.releasePointerCapture(pointerId); } catch (_) { }
         pointerId = null;
         dragStartTarget = null;
@@ -431,7 +436,7 @@ if (drawCanvas && drawToolbar) {
 
     function beginDraw(e) {
         if (mode === 'off') return;
-        if (e.button !== 0) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
         drawing = true;
         lastX = e.clientX;
         lastY = e.clientY;

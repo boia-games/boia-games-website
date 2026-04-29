@@ -472,6 +472,7 @@
         inset: 0;
         z-index: 20;
         pointer-events: none;
+        touch-action: none;
     }
 
     .draw-toolbar {
@@ -593,6 +594,13 @@
 
         .wrap {
             padding: 36px 20px 100px;
+        }
+
+        .draw-toolbar {
+            max-width: calc(100vw - 20px);
+            bottom: 10px;
+            gap: 5px;
+            padding: 7px;
         }
 
         header img {
