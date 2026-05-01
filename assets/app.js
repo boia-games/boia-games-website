@@ -183,6 +183,34 @@ function saveScribblePositions() {
     try { localStorage.setItem(scribblePosKey, JSON.stringify(scribblePosStore)); } catch (_) { }
 }
 
+function updatePageBounds() {
+    if (!scribbleItems.length) return;
+    let maxBottom = 0;
+    scribbleItems.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const bottom = rect.bottom + window.scrollY;
+        if (bottom > maxBottom) maxBottom = bottom;
+    });
+    
+    let spacer = document.getElementById('scribble-spacer');
+    if (!spacer) {
+        spacer = document.createElement('div');
+        spacer.id = 'scribble-spacer';
+        spacer.style.position = 'absolute';
+        spacer.style.left = '0';
+        spacer.style.width = '1px';
+        spacer.style.height = '1px';
+        spacer.style.pointerEvents = 'none';
+        document.body.appendChild(spacer);
+    }
+    spacer.style.top = `${maxBottom + 200}px`;
+    window.dispatchEvent(new Event('resize'));
+}
+
+// Call on load after elements are laid out
+window.addEventListener('load', updatePageBounds);
+setTimeout(updatePageBounds, 100);
+
 scribbleItems.forEach((item, index) => {
     const itemId = item.dataset.postId || item.querySelector('.s-date')?.textContent?.trim() || `item-${index}`;
     item.dataset.postId = itemId;
@@ -210,8 +238,8 @@ scribbleItems.forEach((item, index) => {
         pointerId = e.pointerId;
         pointerType = e.pointerType || 'mouse';
         dragStartTarget = e.target.closest('summary') || e.target.closest('.ascii-frame') || item;
-        startPx = e.clientX;
-        startPy = e.clientY;
+        startPx = e.pageX;
+        startPy = e.pageY;
         baseDx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
         baseDy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
         item.classList.add('no-toggle');
@@ -221,8 +249,8 @@ scribbleItems.forEach((item, index) => {
 
     item.addEventListener('pointermove', (e) => {
         if (!active || e.pointerId !== pointerId) return;
-        const moveX = e.clientX - startPx;
-        const moveY = e.clientY - startPy;
+        const moveX = e.pageX - startPx;
+        const moveY = e.pageY - startPy;
 
         const threshold = (pointerType === 'touch') ? 10 : (pointerType === 'pen' ? 7 : 4);
         if (!moved && (Math.abs(moveX) > threshold || Math.abs(moveY) > threshold)) {
@@ -246,6 +274,7 @@ scribbleItems.forEach((item, index) => {
             const dy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
             scribblePosStore[itemId] = { dx, dy };
             saveScribblePositions();
+            updatePageBounds();
             const posStatus = document.getElementById('drawSavedStatus');
             if (posStatus) {
                 posStatus.textContent = 'position saved';
@@ -272,6 +301,8 @@ scribbleItems.forEach((item, index) => {
             if (item.dataset.suppressSummaryClick === '1') {
                 e.preventDefault();
                 e.stopPropagation();
+            } else {
+                setTimeout(updatePageBounds, 50);
             }
         });
     }
@@ -312,11 +343,16 @@ if (drawCanvas && drawToolbar) {
     }
 
     function resizeCanvas() {
+        drawCanvas.style.display = 'none';
         const ratio = window.devicePixelRatio || 1;
-        drawCanvas.width = Math.floor(window.innerWidth * ratio);
-        drawCanvas.height = Math.floor(window.innerHeight * ratio);
-        drawCanvas.style.width = `${window.innerWidth}px`;
-        drawCanvas.style.height = `${window.innerHeight}px`;
+        const w = document.documentElement.scrollWidth;
+        const h = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+        drawCanvas.style.display = 'block';
+
+        drawCanvas.width = Math.floor(w * ratio);
+        drawCanvas.height = Math.floor(h * ratio);
+        drawCanvas.style.width = `${w}px`;
+        drawCanvas.style.height = `${h}px`;
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         ctx.imageSmoothingEnabled = false;
         renderAll();
@@ -438,8 +474,8 @@ if (drawCanvas && drawToolbar) {
         if (mode === 'off') return;
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         drawing = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
+        lastX = e.pageX;
+        lastY = e.pageY;
         if (mode === 'pen') {
             currentStroke = { color, size, points: [{ x: lastX, y: lastY }] };
             strokes.push(currentStroke);
@@ -452,8 +488,8 @@ if (drawCanvas && drawToolbar) {
 
     function moveDraw(e) {
         if (!drawing) return;
-        const x = e.clientX;
-        const y = e.clientY;
+        const x = e.pageX;
+        const y = e.pageY;
         if (mode === 'eraser') {
             eraseAt(x, y);
         } else {
@@ -507,13 +543,15 @@ if (drawCanvas && drawToolbar) {
         renderAll();
         try { localStorage.removeItem(drawKey); } catch (_) { }
 
-        // reset draggable post offsets
+        // reset draggable post offsets and fold
         scribbleItems.forEach((item) => {
             item.style.setProperty('--dx', '0px');
             item.style.setProperty('--dy', '0px');
+            item.removeAttribute('open');
         });
         scribblePosStore = {};
         saveScribblePositions();
+        updatePageBounds();
         flashSaved('reset done');
     });
 

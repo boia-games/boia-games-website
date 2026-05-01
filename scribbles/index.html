@@ -45,6 +45,196 @@
     </header>
 
     <div class="scribble-list">
+      <details class="scribble-item" data-post-id="2026-05-01-hivemike-pt2">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-05-01</span>
+          <span class="s-sep">—</span>
+          <span class="s-title"><a href="./hivemike-pt2.html">hivemike pt 2</a></span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <p>follow up to <a href="./hivemike.html">hivemike</a>. decisions and open questions.</p>
+
+          <p>timer and rhythm:</p>
+          <ul class="bare">
+            <li>vote window is 2 measures of 4 beats at 164 BPM. ~1.5 seconds per cycle</li>
+            <li>spawns, attacks, animations all snap to the beat</li>
+            <li>chat ends up tapping in time with each other</li>
+            <li>track intensity scales between waves, BPM stays put</li>
+          </ul>
+
+          <p>host loop:</p>
+          <ul class="bare">
+            <li>host can click cells freely, no beat lock</li>
+            <li>spawned monsters and queued actions only resolve on the beat</li>
+            <li>host composes the measure, the game plays it back at tempo</li>
+          </ul>
+
+          <p>move tail:</p>
+          <ul class="bare">
+            <li>tail length = number of cells the host paints for that monster</li>
+            <li>movement and combat are the same primitive. each cell is one instruction</li>
+            <li>longer reach costs more cells, more energy, more telegraph</li>
+            <li>short bursts are cheap but limited</li>
+          </ul>
+
+          <p>tail rendering:</p>
+          <ul class="bare">
+            <li>full path trail is probably too noisy</li>
+            <li>options: show only the next move, hover to reveal, or audio telegraph per monster type</li>
+            <li>start with the cheapest one. add more only if chat gets blindsided</li>
+          </ul>
+
+          <p>Mike:</p>
+          <ul class="bare">
+            <li>no auto-targeting. attack across the map = whiff</li>
+            <li>positioning votes are the game, not setup for auto-attack</li>
+            <li>movement is smooth between cells, lands on a discrete grid position. into the breach style</li>
+            <li>grid-locked logically. adjacency and hit detection stay clean</li>
+          </ul>
+
+          <p>energy:</p>
+          <ul class="bare">
+            <li>host spends to spawn, regains by hitting Mike</li>
+            <li>monsters drop motes on death</li>
+            <li>both Mike and a collector foe can pick them up</li>
+            <li>contested resource on the field. scales from 1v1 to 1v100, the choice is interesting at any vote count</li>
+            <li>host loses at zero energy. defensive Mike is viable</li>
+            <li>cheap monster spam is the obvious failure mode. needs early prototyping</li>
+          </ul>
+
+          <p>chat votes:</p>
+          <ul class="bare">
+            <li>action votes follow the beat</li>
+            <li>stat votes are independent, cast whenever</li>
+            <li>silent chat rolls a die for the action. game stays playable solo or during quiet moments</li>
+          </ul>
+
+          <p>rewards:</p>
+          <ul class="bare">
+            <li>per wave: less damage taken, more resources picked, more kills</li>
+            <li>early voters on the winning action get more, late voters get minimum</li>
+            <li>chat ranking is per-run only</li>
+          </ul>
+
+          <p>transparency:</p>
+          <ul class="bare">
+            <li>full info both ways. host sees vote distribution, chat sees host energy and monster paths</li>
+            <li>open: do chat members see the live distribution on their phone or only after resolution? leaning post-resolution to keep the early-voter bonus meaningful</li>
+            <li>coordination game, not a bluffing game</li>
+          </ul>
+
+          <p>playfield:</p>
+          <ul class="bare">
+            <li>one continuous grid. red border cells are the spawn ring, interior is Mike's space</li>
+            <li>spawn ring on all four sides. side panel sits outside the play area</li>
+            <li>winning action panel flashes on resolution, stays until the next one wins</li>
+          </ul>
+
+          <p>build order:</p>
+          <ul class="bare">
+            <li>gray boxes on a grid. one host, a couple of phones, one monster type, one beat cycle</li>
+            <li>1v1 couch mode first. proves the mechanics with the least setup</li>
+            <li>spawn economy and tail readability need playtesting, not more thinking</li>
+          </ul>
+
+          <p>still open:</p>
+          <ul class="bare">
+            <li>spawn cost curve and monster mix</li>
+            <li>what the "???" slot becomes</li>
+            <li>session length and run-to-run persistence</li>
+            <li>how the tail gets drawn</li>
+          </ul>
+
+          <p>next: gray-box prototype in godot.</p>
+        </div>
+      </details>
+
+      <details class="scribble-item" data-post-id="2026-05-01-hivemike">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-05-01</span>
+          <span class="s-sep">—</span>
+          <span class="s-title"><a href="./hivemike.html">hivemike</a></span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <p>Here is an idea for Hivemike, a game where chat controls a hero (titular Mike) and the host/steamer spawns and controls foes</p>
+
+          <p>Screen contains:</p>
+          <ul class="bare">
+            <li>main character at the center</li>
+            <li>large red outline wrapping screen</li>
+            <li>top right a QR code</li>
+            <li>bottom right a column chart with N columns, each column with a different icon</li>
+          </ul>
+
+          <p>Works like this:</p>
+          <ul class="bare">
+            <li>host of the game/streamer spawns monster by selecting cells in the red outline.</li>
+            <li>monsters moves such as movement, attacks and defence moves are also chosen by the host on the origin cell of that monster and will follow the monster like a tail with a specific sequence</li>
+            <li>to spawn monsters and for some special move, the host uses a limited source of energy which is depleted when making monsters and must be recovered</li>
+            <li>energy is recovered either by damaging the main character or by collecting certain resources</li>
+            <li>the goal of the host is for the main character to die</li>
+          </ul>
+
+          <p>Chat/remote players who connect to the QR will land on a page which has N buttons, each with a choice of action such as</p>
+          <ul class="bare">
+            <li>move up</li>
+            <li>move down</li>
+            <li>move right</li>
+            <li>move left</li>
+            <li>attack quick weak</li>
+            <li>attack slow strong</li>
+            <li>shield up</li>
+            <li>kick</li>
+            <li>roll</li>
+            <li>???</li>
+          </ul>
+
+          <p>Whatever gets voted the most in will be executed after a short timer expires</p>
+
+          <p>The choice will be reflected visually both in the bottom right column chart AND with the icon briefly appearing (and maybe voice SFX on top of it) and the main character performing that action</p>
+
+          <p>The chat/remote screen is mobile first and contains:</p>
+          <ul class="bare">
+            <li>left: timer which is a long line that quickly empties ( ~164 BPM quarter notes)</li>
+            <li>bottom half: N tappable icons doe the actions. It must also be playable with Key strokes (i.e. WASD and so on) and voice commands for accessibility</li>
+            <li>top half: main character stats. Players can vote to up one of the stats. Every N votes on a stat, it increases.</li>
+            <li>players whose action choice consistently wins will earn additional votes on stat increases</li>
+          </ul>
+
+          <p>At the end of every wave:</p>
+          <ul class="bare">
+            <li>host can choose a power up for the monsters like different attacks or monster types</li>
+            <li>chat can visit a shop and vote on what to buy for the hero</li>
+          </ul>
+
+          <p>Working title: hivemike<br>Play on words with hivemind and Mike as the name of the chat-controlled character</p>
+
+          <p>Unbalance looks particularly interesting interesting<br>On one side one person controlls many enemies<br>On the other side many people control one character</p>
+
+          <p>I also like that each side can see what the other side is doing most of the time, as well as what is going to happen to a certain extent</p>
+
+          <p>Challenges I can see for now:<br>How to balance the two very different sides?<br>How to keep the rhythm fast enough while still giving a bit of time to choose what to do?<br>How to make sure the game works theoretically as a 1v1 (though a bit less fun) and with few participants (1vFEW) and with many participants (1v100s)</p>
+
+          <p>Some guiding principles:</p>
+          <ul class="bare">
+            <li>should be low effort to participate as part of chat but difficult to play well</li>
+            <li>playing well should be rewarded, so chat could have an internal ranking based on quality of choices, speed, and so on</li>
+            <li>chat play should be both cooperative AND competitive</li>
+            <li>host play should be challenging and skill based, but should allow different play styles: aggressive, slowburn, crazy random and so on</li>
+          </ul>
+
+          <p>For the engine let's go with godot</p>
+
+          <p>For the visuals I'm leaning pixel art, vampire survivors style</p>
+        </div>
+      </details>
+
       <details class="scribble-item" data-post-id="2026-04-27-godot-lenses">
         <summary>
           <span class="chev">›</span>

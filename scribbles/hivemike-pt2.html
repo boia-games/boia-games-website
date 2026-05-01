@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hivemike pt 2</title>
+  <meta name="description" content="follow up on hivemike, working through the open questions">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="toggle light or dark mode">
+    <span data-theme-label="light">light</span><span class="sep">·</span><span data-theme-label="dark">dark</span>
+  </button>
+
+  <div class="wrap post">
+    <p class="crumb"><a href="../">← boia.games</a></p>
+
+    <header class="post-header">
+      <p class="post-date">2026-05-01</p>
+      <h1>hivemike pt 2</h1>
+    </header>
+
+    <article>
+      <p>follow up to <a href="./hivemike.html">hivemike</a>. decisions and open questions.</p>
+
+      <p>timer and rhythm:</p>
+      <ul class="bare">
+        <li>vote window is 2 measures of 4 beats at 164 BPM. ~1.5 seconds per cycle</li>
+        <li>spawns, attacks, animations all snap to the beat</li>
+        <li>chat ends up tapping in time with each other</li>
+        <li>track intensity scales between waves, BPM stays put</li>
+      </ul>
+
+      <p>host loop:</p>
+      <ul class="bare">
+        <li>host can click cells freely, no beat lock</li>
+        <li>spawned monsters and queued actions only resolve on the beat</li>
+        <li>host composes the measure, the game plays it back at tempo</li>
+      </ul>
+
+      <p>move tail:</p>
+      <ul class="bare">
+        <li>tail length = number of cells the host paints for that monster</li>
+        <li>movement and combat are the same primitive. each cell is one instruction</li>
+        <li>longer reach costs more cells, more energy, more telegraph</li>
+        <li>short bursts are cheap but limited</li>
+      </ul>
+
+      <p>tail rendering:</p>
+      <ul class="bare">
+        <li>full path trail is probably too noisy</li>
+        <li>options: show only the next move, hover to reveal, or audio telegraph per monster type</li>
+        <li>start with the cheapest one. add more only if chat gets blindsided</li>
+      </ul>
+
+      <p>Mike:</p>
+      <ul class="bare">
+        <li>no auto-targeting. attack across the map = whiff</li>
+        <li>positioning votes are the game, not setup for auto-attack</li>
+        <li>movement is smooth between cells, lands on a discrete grid position. into the breach style</li>
+        <li>grid-locked logically. adjacency and hit detection stay clean</li>
+      </ul>
+
+      <p>energy:</p>
+      <ul class="bare">
+        <li>host spends to spawn, regains by hitting Mike</li>
+        <li>monsters drop motes on death</li>
+        <li>both Mike and a collector foe can pick them up</li>
+        <li>contested resource on the field. scales from 1v1 to 1v100, the choice is interesting at any vote count</li>
+        <li>host loses at zero energy. defensive Mike is viable</li>
+        <li>cheap monster spam is the obvious failure mode. needs early prototyping</li>
+      </ul>
+
+      <p>chat votes:</p>
+      <ul class="bare">
+        <li>action votes follow the beat</li>
+        <li>stat votes are independent, cast whenever</li>
+        <li>silent chat rolls a die for the action. game stays playable solo or during quiet moments</li>
+      </ul>
+
+      <p>rewards:</p>
+      <ul class="bare">
+        <li>per wave: less damage taken, more resources picked, more kills</li>
+        <li>early voters on the winning action get more, late voters get minimum</li>
+        <li>chat ranking is per-run only</li>
+      </ul>
+
+      <p>transparency:</p>
+      <ul class="bare">
+        <li>full info both ways. host sees vote distribution, chat sees host energy and monster paths</li>
+        <li>open: do chat members see the live distribution on their phone or only after resolution? leaning post-resolution to keep the early-voter bonus meaningful</li>
+        <li>coordination game, not a bluffing game</li>
+      </ul>
+
+      <p>playfield:</p>
+      <ul class="bare">
+        <li>one continuous grid. red border cells are the spawn ring, interior is Mike's space</li>
+        <li>spawn ring on all four sides. side panel sits outside the play area</li>
+        <li>winning action panel flashes on resolution, stays until the next one wins</li>
+      </ul>
+
+      <p>build order:</p>
+      <ul class="bare">
+        <li>gray boxes on a grid. one host, a couple of phones, one monster type, one beat cycle</li>
+        <li>1v1 couch mode first. proves the mechanics with the least setup</li>
+        <li>spawn economy and tail readability need playtesting, not more thinking</li>
+      </ul>
+
+      <p>still open:</p>
+      <ul class="bare">
+        <li>spawn cost curve and monster mix</li>
+        <li>what the "???" slot becomes</li>
+        <li>session length and run-to-run persistence</li>
+        <li>how the tail gets drawn</li>
+      </ul>
+
+      <p>next: gray-box prototype in godot.</p>
+    </article>
+
+    <footer>
+      <span><a href="./">← all scribbles</a></span>
+      <span><a href="../">home</a></span>
+    </footer>
+
+  </div>
+
+  <script src="../assets/app.js"></script>
+
+</body>
+</html>
