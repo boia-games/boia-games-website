@@ -196,10 +196,21 @@
 
     .scribble-img {
         display: block;
-        max-width: 96px;
+        max-width: 240px;
         width: 100%;
         height: auto;
-        margin: 6px auto 14px auto;
+        margin: 24px auto;
+        border-radius: 6px;
+    }
+
+    /* large featured images inside articles */
+    .scribble-hero {
+        display: block;
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        margin: 28px 0;
+        border-radius: 8px;
     }
 
     /* dark-mode: invert only svg doodle-like scribble images, not photo covers */
