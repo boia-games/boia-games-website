@@ -45,12 +45,95 @@
     </header>
 
     <div class="scribble-list">
+      <details class="scribble-item" data-post-id="2026-05-01-hivemike-pt1">
+        <summary>
+          <span class="chev">›</span>
+          <span class="s-date">2026-05-01</span>
+          <span class="s-sep">—</span>
+          <span class="s-title">hivemike pt 1</span>
+        </summary>
+        <div class="ascii-frame">
+          <span class="corner tl">+</span><span class="corner tr">+</span>
+          <span class="corner bl">+</span><span class="corner br">+</span>
+          <p>Here is an idea for Hivemike, a game where chat controls a hero (titular Mike) and the host/steamer spawns and controls foes</p>
+
+          <p>Screen contains:</p>
+          <ul class="bare">
+            <li>main character at the center</li>
+            <li>large red outline wrapping screen</li>
+            <li>top right a QR code</li>
+            <li>bottom right a column chart with N columns, each column with a different icon</li>
+          </ul>
+
+          <p>Works like this:</p>
+          <ul class="bare">
+            <li>host of the game/streamer spawns monster by selecting cells in the red outline.</li>
+            <li>monsters moves such as movement, attacks and defence moves are also chosen by the host on the origin cell of that monster and will follow the monster like a tail with a specific sequence</li>
+            <li>to spawn monsters and for some special move, the host uses a limited source of energy which is depleted when making monsters and must be recovered</li>
+            <li>energy is recovered either by damaging the main character or by collecting certain resources</li>
+            <li>the goal of the host is for the main character to die</li>
+          </ul>
+
+          <p>Chat/remote players who connect to the QR will land on a page which has N buttons, each with a choice of action such as</p>
+          <ul class="bare">
+            <li>move up</li>
+            <li>move down</li>
+            <li>move right</li>
+            <li>move left</li>
+            <li>attack quick weak</li>
+            <li>attack slow strong</li>
+            <li>shield up</li>
+            <li>kick</li>
+            <li>roll</li>
+            <li>???</li>
+          </ul>
+
+          <p>Whatever gets voted the most in will be executed after a short timer expires</p>
+
+          <p>The choice will be reflected visually both in the bottom right column chart AND with the icon briefly appearing (and maybe voice SFX on top of it) and the main character performing that action</p>
+
+          <p>The chat/remote screen is mobile first and contains:</p>
+          <ul class="bare">
+            <li>left: timer which is a long line that quickly empties ( ~164 BPM quarter notes)</li>
+            <li>bottom half: N tappable icons doe the actions. It must also be playable with Key strokes (i.e. WASD and so on) and voice commands for accessibility</li>
+            <li>top half: main character stats. Players can vote to up one of the stats. Every N votes on a stat, it increases.</li>
+            <li>players whose action choice consistently wins will earn additional votes on stat increases</li>
+          </ul>
+
+          <p>At the end of every wave:</p>
+          <ul class="bare">
+            <li>host can choose a power up for the monsters like different attacks or monster types</li>
+            <li>chat can visit a shop and vote on what to buy for the hero</li>
+          </ul>
+
+          <p>Working title: hivemike<br>Play on words with hivemind and Mike as the name of the chat-controlled character</p>
+
+          <p>Unbalance looks particularly interesting interesting<br>On one side one person controlls many enemies<br>On the other side many people control one character</p>
+
+          <p>I also like that each side can see what the other side is doing most of the time, as well as what is going to happen to a certain extent</p>
+
+          <p>Challenges I can see for now:<br>How to balance the two very different sides?<br>How to keep the rhythm fast enough while still giving a bit of time to choose what to do?<br>How to make sure the game works theoretically as a 1v1 (though a bit less fun) and with few participants (1vFEW) and with many participants (1v100s)</p>
+
+          <p>Some guiding principles:</p>
+          <ul class="bare">
+            <li>should be low effort to participate as part of chat but difficult to play well</li>
+            <li>playing well should be rewarded, so chat could have an internal ranking based on quality of choices, speed, and so on</li>
+            <li>chat play should be both cooperative AND competitive</li>
+            <li>host play should be challenging and skill based, but should allow different play styles: aggressive, slowburn, crazy random and so on</li>
+          </ul>
+
+          <p>For the engine let's go with godot</p>
+
+          <p>For the visuals I'm leaning pixel art, vampire survivors style</p>
+        </div>
+      </details>
+
       <details class="scribble-item" data-post-id="2026-05-01-hivemike-pt2">
         <summary>
           <span class="chev">›</span>
           <span class="s-date">2026-05-01</span>
           <span class="s-sep">—</span>
-          <span class="s-title"><a href="./hivemike-pt2.html">hivemike pt 2</a></span>
+          <span class="s-title">hivemike pt 2</span>
         </summary>
         <div class="ascii-frame">
           <span class="corner tl">+</span><span class="corner tr">+</span>
@@ -149,89 +232,6 @@
           </ul>
 
           <p>next: gray-box prototype in godot.</p>
-        </div>
-      </details>
-
-      <details class="scribble-item" data-post-id="2026-05-01-hivemike-pt1">
-        <summary>
-          <span class="chev">›</span>
-          <span class="s-date">2026-05-01</span>
-          <span class="s-sep">—</span>
-          <span class="s-title"><a href="./hivemike.html">hivemike pt 1</a></span>
-        </summary>
-        <div class="ascii-frame">
-          <span class="corner tl">+</span><span class="corner tr">+</span>
-          <span class="corner bl">+</span><span class="corner br">+</span>
-          <p>Here is an idea for Hivemike, a game where chat controls a hero (titular Mike) and the host/steamer spawns and controls foes</p>
-
-          <p>Screen contains:</p>
-          <ul class="bare">
-            <li>main character at the center</li>
-            <li>large red outline wrapping screen</li>
-            <li>top right a QR code</li>
-            <li>bottom right a column chart with N columns, each column with a different icon</li>
-          </ul>
-
-          <p>Works like this:</p>
-          <ul class="bare">
-            <li>host of the game/streamer spawns monster by selecting cells in the red outline.</li>
-            <li>monsters moves such as movement, attacks and defence moves are also chosen by the host on the origin cell of that monster and will follow the monster like a tail with a specific sequence</li>
-            <li>to spawn monsters and for some special move, the host uses a limited source of energy which is depleted when making monsters and must be recovered</li>
-            <li>energy is recovered either by damaging the main character or by collecting certain resources</li>
-            <li>the goal of the host is for the main character to die</li>
-          </ul>
-
-          <p>Chat/remote players who connect to the QR will land on a page which has N buttons, each with a choice of action such as</p>
-          <ul class="bare">
-            <li>move up</li>
-            <li>move down</li>
-            <li>move right</li>
-            <li>move left</li>
-            <li>attack quick weak</li>
-            <li>attack slow strong</li>
-            <li>shield up</li>
-            <li>kick</li>
-            <li>roll</li>
-            <li>???</li>
-          </ul>
-
-          <p>Whatever gets voted the most in will be executed after a short timer expires</p>
-
-          <p>The choice will be reflected visually both in the bottom right column chart AND with the icon briefly appearing (and maybe voice SFX on top of it) and the main character performing that action</p>
-
-          <p>The chat/remote screen is mobile first and contains:</p>
-          <ul class="bare">
-            <li>left: timer which is a long line that quickly empties ( ~164 BPM quarter notes)</li>
-            <li>bottom half: N tappable icons doe the actions. It must also be playable with Key strokes (i.e. WASD and so on) and voice commands for accessibility</li>
-            <li>top half: main character stats. Players can vote to up one of the stats. Every N votes on a stat, it increases.</li>
-            <li>players whose action choice consistently wins will earn additional votes on stat increases</li>
-          </ul>
-
-          <p>At the end of every wave:</p>
-          <ul class="bare">
-            <li>host can choose a power up for the monsters like different attacks or monster types</li>
-            <li>chat can visit a shop and vote on what to buy for the hero</li>
-          </ul>
-
-          <p>Working title: hivemike<br>Play on words with hivemind and Mike as the name of the chat-controlled character</p>
-
-          <p>Unbalance looks particularly interesting interesting<br>On one side one person controlls many enemies<br>On the other side many people control one character</p>
-
-          <p>I also like that each side can see what the other side is doing most of the time, as well as what is going to happen to a certain extent</p>
-
-          <p>Challenges I can see for now:<br>How to balance the two very different sides?<br>How to keep the rhythm fast enough while still giving a bit of time to choose what to do?<br>How to make sure the game works theoretically as a 1v1 (though a bit less fun) and with few participants (1vFEW) and with many participants (1v100s)</p>
-
-          <p>Some guiding principles:</p>
-          <ul class="bare">
-            <li>should be low effort to participate as part of chat but difficult to play well</li>
-            <li>playing well should be rewarded, so chat could have an internal ranking based on quality of choices, speed, and so on</li>
-            <li>chat play should be both cooperative AND competitive</li>
-            <li>host play should be challenging and skill based, but should allow different play styles: aggressive, slowburn, crazy random and so on</li>
-          </ul>
-
-          <p>For the engine let's go with godot</p>
-
-          <p>For the visuals I'm leaning pixel art, vampire survivors style</p>
         </div>
       </details>
 
