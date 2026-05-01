@@ -172,6 +172,7 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 const scribbleItems = Array.from(document.querySelectorAll('.scribble-item'));
 const scribblePosKey = `boia-scribble-pos:${window.location.pathname}`;
 let scribblePosStore = {};
+let highestZIndex = 10;
 try {
     const raw = localStorage.getItem(scribblePosKey);
     scribblePosStore = raw ? JSON.parse(raw) : {};
@@ -218,6 +219,10 @@ scribbleItems.forEach((item, index) => {
     if (savedPos) {
         item.style.setProperty('--dx', `${savedPos.dx || 0}px`);
         item.style.setProperty('--dy', `${savedPos.dy || 0}px`);
+        if (savedPos.zIndex) {
+            item.style.zIndex = savedPos.zIndex;
+            if (savedPos.zIndex > highestZIndex) highestZIndex = savedPos.zIndex;
+        }
     }
 
     let active = false;
@@ -232,6 +237,11 @@ scribbleItems.forEach((item, index) => {
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         if (e.target.closest('a')) return;
         if (!e.target.closest('summary') && !e.target.closest('.ascii-frame')) return;
+
+        highestZIndex++;
+        item.style.zIndex = highestZIndex;
+        if (!scribblePosStore[itemId]) scribblePosStore[itemId] = {};
+        scribblePosStore[itemId].zIndex = highestZIndex;
 
         active = true;
         moved = false;
@@ -272,8 +282,7 @@ scribbleItems.forEach((item, index) => {
             setTimeout(() => { delete item.dataset.suppressSummaryClick; }, 0);
             const dx = parseFloat(item.style.getPropertyValue('--dx')) || 0;
             const dy = parseFloat(item.style.getPropertyValue('--dy')) || 0;
-            scribblePosStore[itemId] = { dx, dy };
-            saveScribblePositions();
+            scribblePosStore[itemId] = { dx, dy, zIndex: item.style.zIndex };
             updatePageBounds();
             const posStatus = document.getElementById('drawSavedStatus');
             if (posStatus) {
@@ -282,6 +291,13 @@ scribbleItems.forEach((item, index) => {
                 setTimeout(() => posStatus.classList.remove('show'), 1000);
             }
         }
+        
+        // Always save on pointer up to persist the zIndex change even if not moved
+        if (!moved && scribblePosStore[itemId]) {
+            scribblePosStore[itemId].zIndex = item.style.zIndex;
+        }
+        saveScribblePositions();
+
         active = false;
         moved = false;
         item.classList.remove('dragging');
@@ -547,8 +563,10 @@ if (drawCanvas && drawToolbar) {
         scribbleItems.forEach((item) => {
             item.style.setProperty('--dx', '0px');
             item.style.setProperty('--dy', '0px');
+            item.style.zIndex = '';
             item.removeAttribute('open');
         });
+        highestZIndex = 10;
         scribblePosStore = {};
         saveScribblePositions();
         updatePageBounds();
