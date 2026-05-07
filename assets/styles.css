@@ -218,6 +218,24 @@
         filter: brightness(0) invert(0.82);
     }
 
+    /* gif strip — pixel art animations laid out in a row */
+    .gif-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: flex-end;
+        justify-content: center;
+        margin: 14px 0 16px;
+    }
+
+    .pixel-gif {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;  /* webkit fallback */
+        height: 96px;
+        width: auto;
+        user-select: none;
+    }
+
     section .more-link {
         font-size: 13px;
         margin-top: 14px;
